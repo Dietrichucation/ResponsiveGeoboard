@@ -1,0 +1,77 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the top */
+    width: 100%;
+    max-width: 1000px; /* Adjust max width as needed */
+}
+
+.controls-display {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px; /* Ensure it has some width */
+}
+
+.controls-display div {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+#clear-button {
+    padding: 10px 15px;
+    margin-top: 15px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+#clear-button:hover {
+    background-color: #c0392b;
+}
+
+.instructions {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 15px;
+}
+
+.geoboard-container {
+    /* Background styling is handled by canvas drawing */
+}
+
+#geoboard-canvas {
+    border: 1px solid #ccc;
+    background-color: #2c3e50; /* Dark background like the example */
+    cursor: crosshair;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Placeholder for decomposition menu styling */
+/* .decomposition-menu {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px;
+} */
