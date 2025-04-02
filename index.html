@@ -11,28 +11,35 @@
 
     <div class="container">
         <div class="controls-display">
-            <h2>Calculations</h2>
-            <div id="perimeter-display">Perimeter: 0.00</div>
-            <div id="area-display">Area: 0.00</div>
+            <h2>Controls & Calculations</h2>
+
+            <!-- Color Selection -->
+            <div class="color-selector">
+                <span>Choose Color:</span>
+                <button class="color-button" data-color="#f1c40f" style="background-color: #f1c40f;"></button> <!-- Yellow -->
+                <button class="color-button" data-color="#e74c3c" style="background-color: #e74c3c;"></button> <!-- Red -->
+                <button class="color-button" data-color="#3498db" style="background-color: #3498db;"></button> <!-- Blue -->
+                <button class="color-button" data-color="#2ecc71" style="background-color: #2ecc71;"></button> <!-- Green -->
+                 <button class="color-button" data-color="#ffffff" style="background-color: #ffffff; border: 1px solid #ccc;"></button> <!-- White -->
+            </div>
+
+            <!-- Calculations -->
+            <div id="perimeter-display">Total Perimeter: 0.00</div>
+            <div id="area-display">Total Area (Sum): 0.00</div>
+             <div id="intersection-display">Intersection Area: N/A</div> <!-- Placeholder -->
+
             <button id="clear-button">Clear Board</button>
-            <p class="instructions">Click on grid points to create a polygon. Click near the start point to close it (optional).</p>
+            <p class="instructions">Select a color, then click grid points. Click near start to close. Drag points to move.</p>
         </div>
 
         <div class="geoboard-container">
             <canvas id="geoboard-canvas" width="560" height="400"></canvas>
-             <!-- Adjust width/height as needed, keep consistent with grid spacing/counts in JS -->
         </div>
 
-        <!-- Placeholder for future decomposition menu -->
-        <!-- <div class="decomposition-menu">
-            <h2>Decomposition Options</h2>
-            <ul>
-                <li>Option 1</li>
-                <li>Option 2</li>
-            </ul>
-        </div> -->
     </div>
 
+    <!-- Include a geometry library if doing real intersections (optional for this example) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script> -->
     <script src="script.js"></script>
 </body>
 </html>
