@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Geoboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Interactive Geoboard</h1>
+
+    <div class="container">
+        <div class="controls-display">
+            <h2>Calculations</h2>
+            <div id="perimeter-display">Perimeter: 0.00</div>
+            <div id="area-display">Area: 0.00</div>
+            <button id="clear-button">Clear Board</button>
+            <p class="instructions">Click on grid points to create a polygon. Click near the start point to close it (optional).</p>
+        </div>
+
+        <div class="geoboard-container">
+            <canvas id="geoboard-canvas" width="560" height="400"></canvas>
+             <!-- Adjust width/height as needed, keep consistent with grid spacing/counts in JS -->
+        </div>
+
+        <!-- Placeholder for future decomposition menu -->
+        <!-- <div class="decomposition-menu">
+            <h2>Decomposition Options</h2>
+            <ul>
+                <li>Option 1</li>
+                <li>Option 2</li>
+            </ul>
+        </div> -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
