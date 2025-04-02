@@ -26,7 +26,7 @@
             <!-- Calculations -->
             <div id="perimeter-display">Total Perimeter: 0.00</div>
             <div id="area-display">Total Area (Sum): 0.00</div>
-             <div id="intersection-display">Intersection Area: N/A</div> <!-- Placeholder -->
+             <div id="intersection-display">Intersection Area: N/A</div> <!-- For accurate intersection area -->
 
             <button id="clear-button">Clear Board</button>
             <p class="instructions">Select a color, then click grid points. Click near start to close. Drag points to move.</p>
@@ -38,8 +38,10 @@
 
     </div>
 
-    <!-- Include a geometry library if doing real intersections (optional for this example) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script> -->
+    <!-- Include Turf.js Library (Place BEFORE your script.js) -->
+    <script src='https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js'></script>
+
+    <!-- Your Custom Script -->
     <script src="script.js"></script>
 </body>
 </html>
