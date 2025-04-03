@@ -1,4 +1,8 @@
+// Add this check RIGHT AT THE START of the main event listener
 document.addEventListener('DOMContentLoaded', () => {
+    // Add this line right at the start
+    console.log(`Initial Check: Turf library loaded? Type: ${typeof turf}`);
+
     const canvas = document.getElementById('geoboard-canvas');
     const ctx = canvas.getContext('2d');
     const perimeterDisplay = document.getElementById('perimeter-display');
@@ -56,20 +60,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const n = verts.length;
         if (n < 3) return 0;
 
-        console.log(`  -> Shoelace input: ${JSON.stringify(verts)}`); // Log input
+        // console.log(`  -> Shoelace input: ${JSON.stringify(verts)}`); // Keep logging minimal for now
 
         for (let i = 0; i < n; i++) {
             const p1 = verts[i];
             const p2 = verts[(i + 1) % n];
-            if (!p1 || !p2) {
-                 console.error("Shoelace: Invalid vertex found at index", i);
-                 return 0;
+            if (!p1 || !p2 || typeof p1.x === 'undefined' || typeof p1.y === 'undefined' || typeof p2.x === 'undefined' || typeof p2.y === 'undefined') { // Added type checks
+                 console.error("Shoelace: Invalid vertex data found at index", i, p1, p2);
+                 return NaN; // Return NaN if data is bad
             }
             area += (p1.x * p2.y - p2.x * p1.y);
         }
         const finalArea = Math.abs(area) / 2.0;
-        console.log(`  -> Shoelace calculated area (px^2): ${finalArea}`); // Log result
-        return finalArea;
+        // console.log(`  -> Shoelace calculated area (px^2): ${finalArea}`);
+        return finalArea; // Return potential NaN
     }
 
 
@@ -89,15 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const coordinates = verts.map(v => [v.x, v.y]);
         coordinates.push([verts[0].x, verts[0].y]); // Close the ring
         try {
-            // Basic validation before passing to Turf - helps catch self-intersections etc.
-            const tempPoly = turf.polygon([coordinates]); // Create potential polygon
-            if (!turf.booleanValid(tempPoly)) {
-                 console.warn("Polygon geometry invalid according to Turf:", coordinates);
-                 return null; // Don't pass invalid geometry
+            // Ensure Turf is loaded before using it here too
+            if (typeof turf === 'undefined') {
+                 console.error("Turf not loaded when trying to format polygon.");
+                 return null;
             }
-            return tempPoly; // Return the valid polygon
+            const tempPoly = turf.polygon([coordinates]);
+            if (!turf.booleanValid(tempPoly)) {
+                 // console.warn("Polygon geometry invalid according to Turf:", coordinates); // Less verbose
+                 return null;
+            }
+            return tempPoly;
         } catch (e) {
-            console.warn("Failed to create or validate Turf polygon:", e.message, coordinates);
+            // console.warn("Failed to create or validate Turf polygon:", e.message, coordinates); // Less verbose
             return null;
         }
     }
@@ -114,15 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
          // Draw grid lines and pegs
          for (let x = 0; x <= canvas.width; x += GRID_SPACING) {
              ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-             for (let y = GRID_SPACING; y <= canvas.height; y += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) drawPeg(x, y); } // Check bounds
+             for (let y = GRID_SPACING; y <= canvas.height; y += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) drawPeg(x, y); }
          }
          for (let y = 0; y <= canvas.height; y += GRID_SPACING) {
              ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-             // Only draw pegs on horizontal pass if not already drawn on vertical pass (to avoid double drawing slightly offset)
-             for (let x = 0; x <= canvas.width; x += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height && y > 0) drawPeg(x, y); } // Draw if y>0
-              if(y === 0) { for (let x = 0; x <= canvas.width; x += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) drawPeg(x, y); }} // Draw all for y=0
+             for (let x = 0; x <= canvas.width; x += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height && y > 0) drawPeg(x, y); }
+              if(y === 0) { for (let x = 0; x <= canvas.width; x += GRID_SPACING) { if(x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) drawPeg(x, y); }}
          }
-
         // Draw Axis numbers
         ctx.fillStyle = '#ccc'; ctx.font = '10px sans-serif';
         for (let i = 1; i * GRID_SPACING <= canvas.width; i++) ctx.fillText(i, i * GRID_SPACING - 3, 12);
@@ -130,53 +136,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawPeg(x, y) {
-        ctx.beginPath();
-        ctx.arc(x, y, PEG_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = PEG_COLOR;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, PEG_RADIUS, 0, Math.PI * 2); ctx.fillStyle = PEG_COLOR; ctx.fill();
     }
 
     function drawSinglePolygon(polygon, index) {
         const verts = polygon.vertices;
         if (verts.length < 1) return;
-
-        ctx.strokeStyle = polygon.color;
-        ctx.lineWidth = LINE_WIDTH;
-        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-
+        ctx.strokeStyle = polygon.color; ctx.lineWidth = LINE_WIDTH; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
         // Draw outline
         ctx.beginPath(); ctx.moveTo(verts[0].x, verts[0].y);
         for (let i = 1; i < verts.length; i++) { ctx.lineTo(verts[i].x, verts[i].y); }
         if (polygon.isClosed && verts.length > 1) { ctx.closePath(); }
         ctx.stroke();
-
         // Fill if closed
         if (polygon.isClosed && verts.length >= 3) {
-            let rgbaColor = hexToRgba(polygon.color, FILL_ALPHA);
-            ctx.fillStyle = rgbaColor;
+            let rgbaColor = hexToRgba(polygon.color, FILL_ALPHA); ctx.fillStyle = rgbaColor;
             ctx.beginPath(); ctx.moveTo(verts[0].x, verts[0].y);
             for (let i = 1; i < verts.length; i++) { ctx.lineTo(verts[i].x, verts[i].y); }
-            ctx.closePath();
-            ctx.fill();
+            ctx.closePath(); ctx.fill();
         }
-
         // Highlight vertices
         verts.forEach((v, vertexIdx) => {
             const isDragged = (isDragging && index === draggedPolygonIndex && vertexIdx === draggedVertexIndex);
-            ctx.beginPath();
-            ctx.arc(v.x, v.y, PEG_RADIUS + (isDragged ? 3 : 1), 0, Math.PI * 2);
-            ctx.fillStyle = isDragged ? 'red' : polygon.color;
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(v.x, v.y, PEG_RADIUS + (isDragged ? 3 : 1), 0, Math.PI * 2);
+            ctx.fillStyle = isDragged ? 'red' : polygon.color; ctx.fill();
         });
     }
 
     // Helper: Draw geometry returned by Turf.js on canvas (Used by intersection drawing)
-     function drawTurfGeometry(geometry, ctx) {
+    function drawTurfGeometry(geometry, ctx) {
         if (!geometry) return;
         // Assumes fillStyle is set before calling
         if (geometry.type === 'Polygon') { drawCanvasRing(geometry.coordinates, ctx); }
         else if (geometry.type === 'MultiPolygon') { geometry.coordinates.forEach(coords => drawCanvasRing(coords, ctx)); }
-        // Note: Doesn't draw Point/LineString intersections, only Polygon/MultiPolygon
     }
 
     // Helper for drawTurfGeometry
@@ -192,43 +184,96 @@ document.addEventListener('DOMContentLoaded', () => {
          ctx.fill('evenodd'); // Handles holes correctly
     }
 
-
-    // Revised drawIntersections Function using Turf.js (No changes needed here)
+    // ENHANCED drawIntersections Function with Logging
     function drawIntersections() {
+        console.log("--- drawIntersections START ---"); // Log start
         let intersectionAreaTotalPixels = 0;
+        let foundAnyIntersection = false; // Flag to track if we found geometric overlap
         intersectionDisplay.textContent = `Total Intersection Area: N/A`; // Default
 
         let closedPolygons = polygons.filter(p => p.isClosed && p.vertices.length >= 3);
+        console.log(`Found ${closedPolygons.length} closed polygons for intersection check.`); // Log count
+
         if (closedPolygons.length < 2) {
             intersectionDisplay.textContent = `Total Intersection Area: 0.00 sq. units`;
+            console.log("--- drawIntersections END (Not enough polygons) ---");
             return;
         }
 
+        // Ensure Turf is available globally
+        if (typeof turf === 'undefined') {
+             console.error("!!! Turf library is not loaded !!! Cannot calculate intersections.");
+             intersectionDisplay.textContent = `Intersection Area: Error`;
+             console.log("--- drawIntersections END (Turf not loaded) ---");
+             return;
+        }
+
         ctx.fillStyle = INTERSECTION_COLOR; // Set fill for intersection areas
+        console.log(`Set fillStyle to: ${INTERSECTION_COLOR}`);
 
         for (let i = 0; i < closedPolygons.length; i++) {
             for (let j = i + 1; j < closedPolygons.length; j++) {
+                // Get original indices for better logging
+                const polyIndex1 = polygons.findIndex(p => p === closedPolygons[i]);
+                const polyIndex2 = polygons.findIndex(p => p === closedPolygons[j]);
+                console.log(`Checking intersection between Figure ${polyIndex1 + 1} and Figure ${polyIndex2 + 1}`);
+
                 const turfPoly1 = toTurfPolygonFormat(closedPolygons[i].vertices);
                 const turfPoly2 = toTurfPolygonFormat(closedPolygons[j].vertices);
+                console.log(`  turfPoly1 valid: ${!!turfPoly1}, turfPoly2 valid: ${!!turfPoly2}`); // Log validity
 
-                if (!turfPoly1 || !turfPoly2) continue; // Skip if format is invalid
+                if (!turfPoly1 || !turfPoly2) {
+                    console.log("  Skipping pair due to invalid polygon format.");
+                    continue; // Skip if format is invalid
+                }
 
                 try {
+                    console.log("  Calling turf.intersect...");
                     const intersection = turf.intersect(turfPoly1, turfPoly2);
-                    if (intersection) {
-                        drawTurfGeometry(intersection.geometry, ctx); // Draw the overlap shape
+                     let intersectionGeometry = null;
+                     if (intersection && intersection.geometry && intersection.geometry.type) {
+                        intersectionGeometry = intersection.geometry;
+                     }
+
+                    console.log("  turf.intersect result:", intersection ? intersection.geometry.type : null); // Log intersection result type
+
+                    if (intersectionGeometry && (intersectionGeometry.type === 'Polygon' || intersectionGeometry.type === 'MultiPolygon') && intersectionGeometry.coordinates && intersectionGeometry.coordinates.length > 0) {
+                        console.log("  Geometric intersection found. Type:", intersectionGeometry.type);
+                        console.log("  Calling drawTurfGeometry...");
+                        drawTurfGeometry(intersectionGeometry, ctx); // Draw the overlap shape
+                        console.log("  Finished drawTurfGeometry.");
+                        foundAnyIntersection = true; // Mark that we drew something
+
                         const areaPixels = turf.area(intersection); // Calculate overlap area in px^2
-                        intersectionAreaTotalPixels += areaPixels;
+                        console.log(`  Calculated intersection area (px^2): ${areaPixels}`);
+                        if (!isNaN(areaPixels)) {
+                             intersectionAreaTotalPixels += areaPixels;
+                        } else {
+                            console.warn("  NaN area returned by turf.area for intersection.");
+                        }
+                    } else if (intersection) {
+                         console.log(`  Intersection found but it's not a Polygon or MultiPolygon (Type: ${intersection.geometry.type}). Not drawing or calculating area.`);
+                    }
+
+                    else {
+                         console.log("  No geometric intersection found by Turf.");
                     }
                 } catch (e) {
-                    console.error("Turf.js intersection error:", e.message);
+                    console.error("  Turf.js intersection error:", e.message);
                 }
             }
         }
-        const intersectionAreaUnits = intersectionAreaTotalPixels / (GRID_SPACING * GRID_SPACING);
-        intersectionDisplay.textContent = `Total Intersection Area: ${intersectionAreaUnits.toFixed(2)} sq. units`;
-    }
 
+        // Update display based on whether any geometric intersection was processed
+        if (foundAnyIntersection || closedPolygons.length >= 2) { // Update if checked or found something
+             const intersectionAreaUnits = intersectionAreaTotalPixels / (GRID_SPACING * GRID_SPACING);
+             intersectionDisplay.textContent = `Total Intersection Area: ${intersectionAreaUnits.toFixed(2)} sq. units`;
+             console.log(`--- drawIntersections END (Final Area Units: ${intersectionAreaUnits.toFixed(2)}) ---`);
+        } else {
+             intersectionDisplay.textContent = `Total Intersection Area: 0.00 sq. units`; // Explicitly 0 if fewer than 2 polygons
+             console.log(`--- drawIntersections END (No intersections possible/found) ---`);
+        }
+    }
 
     function redrawCanvas() {
         drawGrid();
@@ -238,10 +283,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- UI Update Functions ---
-    // UPDATED VERSION using only Shoelace for main Area calculations
+    // Using only Shoelace for main Area calculations + NaN checks
     function updateCalculations() {
         let totalPerimeter = 0; // Sum of perimeters in PIXELS
-        let totalArea = 0;      // Sum of areas in SQ PIXELS (Using Shoelace only now)
+        let totalArea = 0;      // Sum of areas in SQ PIXELS
 
         figuresListDiv.innerHTML = ''; // Clear previous individual figures display
 
@@ -253,15 +298,20 @@ document.addEventListener('DOMContentLoaded', () => {
             totalPerimeter += singlePerimeterPixels;
             const singlePerimeterUnits = singlePerimeterPixels / GRID_SPACING;
 
-            // --- Area (USING SHOELACE ONLY) ---
+            // --- Area (USING SHOELACE ONLY with NaN check) ---
             let singleAreaPixels = 0;
             if (poly.isClosed && poly.vertices.length >= 3) {
-                 console.log(`Calculating area for ${figureLabel} using Shoelace. Vertices:`, JSON.stringify(poly.vertices)); // Log vertices
+                 // console.log(`Calculating area for ${figureLabel} using Shoelace. Vertices:`, JSON.stringify(poly.vertices)); // Reduce logging
                  singleAreaPixels = calculateArea(poly.vertices); // Directly use Shoelace
+
                  singleAreaPixels = Math.abs(singleAreaPixels); // Ensure positive
+
+                 if (isNaN(singleAreaPixels)) {
+                    console.error(`!!! NaN detected for singleAreaPixels for ${figureLabel}. Vertices were:`, JSON.stringify(poly.vertices));
+                    singleAreaPixels = 0; // Prevent NaN propagation, treat as 0 area
+                 }
                  totalArea += singleAreaPixels; // Add to total sum
             }
-             // If not closed or less than 3 vertices, area remains 0
 
             const singleAreaUnits = singleAreaPixels / (GRID_SPACING * GRID_SPACING);
 
@@ -278,12 +328,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Display Totals ---
         const totalPerimeterUnits = totalPerimeter / GRID_SPACING;
-        const totalAreaSumUnits = totalArea / (GRID_SPACING * GRID_SPACING); // Convert SUMMED pixel area
+
+        // console.log(`Final check before scaling: totalArea (px^2) = ${totalArea}, GRID_SPACING = ${GRID_SPACING}`); // Reduce logging
+        const gridSpacingSq = GRID_SPACING * GRID_SPACING;
+        let totalAreaSumUnits = 0;
+        if (gridSpacingSq !== 0 && !isNaN(totalArea)) {
+            totalAreaSumUnits = totalArea / gridSpacingSq;
+        } else {
+             console.error(`!!! Error scaling total area. totalArea=${totalArea}, gridSpacingSq=${gridSpacingSq}`);
+        }
+        // console.log(`Final scaled area: totalAreaSumUnits = ${totalAreaSumUnits}`); // Reduce logging
 
         perimeterDisplay.textContent = `Total Perimeter (Sum): ${totalPerimeterUnits.toFixed(2)} units`;
         areaDisplay.textContent = `Total Area (Sum): ${totalAreaSumUnits.toFixed(2)} sq. units`;
 
-        // Intersection display is updated within drawIntersections (no change needed here, Turf is okay for intersection geometry/area)
+        // Intersection display updated in drawIntersections
     }
 
 
@@ -296,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function snapToGrid(mouseX, mouseY) {
         const gridX = Math.round(mouseX / GRID_SPACING); const gridY = Math.round(mouseY / GRID_SPACING);
         const snappedX = gridX * GRID_SPACING; const snappedY = gridY * GRID_SPACING;
-        const clampedX = Math.max(0, Math.min(snappedX, canvas.width)); // Clamp to canvas boundaries
+        const clampedX = Math.max(0, Math.min(snappedX, canvas.width));
         const clampedY = Math.max(0, Math.min(snappedY, canvas.height));
         return { x: clampedX, y: clampedY };
     }
@@ -317,11 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const mousePos = getMousePos(event);
         const clickedVertexInfo = findVertexNear(mousePos);
         if (clickedVertexInfo) {
-            isDragging = true;
-            draggedPolygonIndex = clickedVertexInfo.polygonIndex;
-            draggedVertexIndex = clickedVertexInfo.vertexIndex;
-            canvas.style.cursor = 'grabbing';
-            redrawCanvas();
+            isDragging = true; draggedPolygonIndex = clickedVertexInfo.polygonIndex; draggedVertexIndex = clickedVertexInfo.vertexIndex;
+            canvas.style.cursor = 'grabbing'; redrawCanvas();
         } else {
             isDragging = false; draggedPolygonIndex = -1; draggedVertexIndex = -1;
         }
@@ -419,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (button.dataset.color === DEFAULT_COLOR) { button.classList.add('selected'); }
     });
 
-    redrawCanvas(); updateCalculations();
+    redrawCanvas();
+    updateCalculations();
 
-});
+}); // End of DOMContentLoaded listener
