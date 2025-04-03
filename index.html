@@ -45,13 +45,13 @@
 
     </div> <!-- End of .container div -->
 
-    <!-- ===== CORRECTED Library Link - MUST BE FIRST ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.3/polygon-clipping.min.js"></script>
-    <!-- Note: No /dist/ in the path -->
+    <!-- ===== Library MUST BE FIRST + DEFER ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.3/polygon-clipping.min.js" defer></script>
+    <!-- Note: Added defer attribute -->
 
-    <!-- ===== YOUR SCRIPT MUST BE SECOND ===== -->
-    <script src="script.js"></script>
-    <!-- Ensure script.js contains the latest version using polygon-clipping -->
+    <!-- ===== YOUR SCRIPT MUST BE SECOND + DEFER ===== -->
+    <script src="script.js" defer></script>
+    <!-- Note: Added defer attribute -->
 
 </body>
 </html>
