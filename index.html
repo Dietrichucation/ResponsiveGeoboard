@@ -26,7 +26,7 @@
             <!-- Calculations -->
             <div id="perimeter-display">Total Perimeter (Sum): 0.00 units</div>
             <div id="area-display">Total Area (Sum): 0.00 sq. units</div>
-            <!-- <div id="intersection-display">Total Intersection Area: 0.00 sq. units</div> --> <!-- REMOVED THIS LINE -->
+            <div id="intersection-display">Total Intersection Area: 0.00 sq. units</div> <!-- Re-enabled for polygon-clipping -->
 
             <button id="clear-button">Clear Board</button>
 
@@ -45,10 +45,11 @@
 
     </div>
 
-    <!-- REMOVED TURF.JS SCRIPT TAG -->
-    <!-- <script src='https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js'></script> -->
+    <!-- Add polygon-clipping Library (Place BEFORE your script.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.3/dist/polygon-clipping.min.js"></script>
+    <!-- You can check for newer versions on sites like unpkg.com or jsdelivr.com -->
 
     <!-- Your Custom Script -->
-    <script src="script.js"></script> <!-- Make sure this uses the latest JS file -->
+    <script src="script.js"></script>
 </body>
 </html>
