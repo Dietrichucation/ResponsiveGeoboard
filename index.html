@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Geoboard</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> <!-- Ensure style.css is present -->
 </head>
 <body>
     <h1>Interactive Geoboard</h1>
@@ -26,7 +26,7 @@
             <!-- Calculations -->
             <div id="perimeter-display">Total Perimeter (Sum): 0.00 units</div>
             <div id="area-display">Total Area (Sum): 0.00 sq. units</div>
-            <div id="intersection-display">Total Intersection Area: 0.00 sq. units</div> <!-- Re-enabled for polygon-clipping -->
+            <div id="intersection-display">Total Intersection Area: 0.00 sq. units</div> <!-- Display for intersection -->
 
             <button id="clear-button">Clear Board</button>
 
@@ -43,13 +43,15 @@
             <canvas id="geoboard-canvas" width="560" height="400"></canvas>
         </div>
 
-    </div>
+    </div> <!-- End of .container div -->
 
-    <!-- Add polygon-clipping Library (Place BEFORE your script.js) -->
+    <!-- ===== Library MUST BE FIRST ===== -->
     <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.3/dist/polygon-clipping.min.js"></script>
     <!-- You can check for newer versions on sites like unpkg.com or jsdelivr.com -->
 
-    <!-- Your Custom Script -->
+    <!-- ===== YOUR SCRIPT MUST BE SECOND ===== -->
     <script src="script.js"></script>
+    <!-- Ensure script.js contains the latest version using polygon-clipping -->
+
 </body>
 </html>
