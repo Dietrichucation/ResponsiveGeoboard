@@ -98,9 +98,10 @@ h1, h2 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* Style for Intersection Display */
 #intersection-display {
     font-weight: bold;
-    color: #8e44ad; /* Purple to match intersection */
+    color: #8e44ad; /* Purple to match intersection highlight */
 }
 
 /* Styles for Individual Figures List */
