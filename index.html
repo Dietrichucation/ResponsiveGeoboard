@@ -45,11 +45,12 @@
 
     </div> <!-- End of .container div -->
 
-    <!-- ===== CORRECTED Library Link - Includes /dist/ and uses .umd.js - MUST BE FIRST ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.3/dist/polygon-clipping.umd.js" defer></script>
-    <!-- Note: path includes /dist/ and filename is polygon-clipping.umd.js -->
+    <!-- ===== Load Local Library FIRST ===== -->
+    <script src="polygon-clipping.umd.js" defer></script>
+    <!-- Loads the file you downloaded and added to the project -->
+    <!-- Ensure the filename matches EXACTLY what you saved -->
 
-    <!-- ===== YOUR SCRIPT MUST BE SECOND + DEFER ===== -->
+    <!-- ===== Load Your Script SECOND ===== -->
     <script src="script.js" defer></script>
     <!-- Ensure script.js is the latest version using polygon-clipping -->
 
